@@ -1,4 +1,3 @@
-
 import datetime
 import os
 import altair as alt
@@ -7,7 +6,7 @@ import pandas as pd
 import streamlit as st
 import requests
 import json
-import base64  # Import base64
+from io import StringIO  # Import StringIO from io module
 
 # Define the GitHub repository information and the CSV file path.
 GITHUB_API_URL = "https://api.github.com"
@@ -15,44 +14,6 @@ REPO_OWNER = "jstevenson3434"  # Replace with your GitHub username
 REPO_NAME = "ProjectTicket"  # Replace with your GitHub repository name
 CSV_FILE_PATH = "Data.csv"  # The path to your CSV file in the repo
 GITHUB_TOKEN = "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"  # Replace with your GitHub token
-
-# Function to get SHA of the file
-def get_sha_of_file():
-    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
-    response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
-    return response.json()['sha'] if response.status_code == 200 else None
-
-# Function to save the content to GitHub
-def save_to_github(content):
-    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
-    response = requests.put(
-        url,
-        headers={"Authorization": f"token {GITHUB_TOKEN}"},
-        data=json.dumps({
-            "message": "Update Project_Ticket.csv",
-            "content": base64.b64encode(content.encode()).decode(),
-            "sha": get_sha_of_file()
-        })
-    )
-    if response.status_code in (201, 200):
-        st.success("Project ticket saved to GitHub!")
-    else:
-        st.error("Failed to save project ticket to GitHub.")
-
-# Load existing projects from GitHub or create an empty DataFrame if the file doesn't exist.
-def load_projects_from_github():
-    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
-    response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
-
-    if response.status_code == 200:
-        # Decode the content from base64
-        content = response.json()['content']
-        decoded_content = pd.read_csv(pd.compat.StringIO(base64.b64decode(content).decode()))
-        return decoded_content
-    else:
-        # Create an empty DataFrame with specified columns.
-        columns = ["ID", "Title", "Description", "Status", "Priority", "Date Submitted"]
-        return pd.DataFrame(columns=columns)
 
 # Show app title and description.
 st.set_page_config(page_title="Project Management System", page_icon="📊")
@@ -63,6 +24,21 @@ st.write(
     implementing a project ticket workflow. Users can create new projects, edit existing projects, and view some statistics.
     """
 )
+
+# Load existing projects from GitHub or create an empty DataFrame if the file doesn't exist.
+def load_projects_from_github():
+    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
+    response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+
+    if response.status_code == 200:
+        # Decode the content from base64
+        content = response.json()['content']
+        decoded_content = pd.read_csv(StringIO(base64.b64decode(content).decode()))
+        return decoded_content
+    else:
+        # Create an empty DataFrame with specified columns.
+        columns = ["ID", "Title", "Description", "Status", "Priority", "Date Submitted"]
+        return pd.DataFrame(columns=columns)
 
 # Initialize DataFrame
 st.session_state.df = load_projects_from_github()
@@ -103,6 +79,27 @@ if submitted:
     # Save to GitHub
     content = st.session_state.df.to_csv(index=False)
     save_to_github(content)
+
+def save_to_github(content):
+    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
+    response = requests.put(
+        url,
+        headers={"Authorization": f"token {GITHUB_TOKEN}"},
+        data=json.dumps({
+            "message": "Update Project_Ticket.csv",
+            "content": base64.b64encode(content.encode()).decode(),
+            "sha": get_sha_of_file()
+        })
+    )
+    if response.status_code in (201, 200):
+        st.success("Project ticket saved to GitHub!")
+    else:
+        st.error("Failed to save project ticket to GitHub.")
+
+def get_sha_of_file():
+    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
+    response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+    return response.json()['sha'] if response.status_code == 200 else None
 
 # Show section to view and edit existing projects in a table.
 st.header("Existing Projects")
@@ -173,4 +170,3 @@ priority_plot = (
     .properties(height=300)
 )
 st.altair_chart(priority_plot, use_container_width=True, theme="streamlit")
-
