@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 import requests
 import json
+import base64  # Import base64 module
 from io import StringIO  # Import StringIO from io module
 
 # Define the GitHub repository information and the CSV file path.
@@ -170,3 +171,4 @@ priority_plot = (
     .properties(height=300)
 )
 st.altair_chart(priority_plot, use_container_width=True, theme="streamlit")
+
