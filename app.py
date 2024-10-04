@@ -26,6 +26,27 @@ st.write(
     """
 )
 
+def save_to_github(content):
+    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
+    response = requests.put(
+        url,
+        headers={"Authorization": f"token {GITHUB_TOKEN}"},
+        data=json.dumps({
+            "message": "Update Project_Ticket.csv",
+            "content": base64.b64encode(content.encode()).decode(),
+            "sha": get_sha_of_file()
+        })
+    )
+    if response.status_code in (201, 200):
+        st.success("Project ticket saved to GitHub!")
+    else:
+        st.error("Failed to save project ticket to GitHub.")
+
+def get_sha_of_file():
+    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
+    response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+    return response.json()['sha'] if response.status_code == 200 else None
+
 # Load existing projects from GitHub or create an empty DataFrame if the file doesn't exist.
 def load_projects_from_github():
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
@@ -80,27 +101,6 @@ if submitted:
     # Save to GitHub
     content = st.session_state.df.to_csv(index=False)
     save_to_github(content)
-
-def save_to_github(content):
-    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
-    response = requests.put(
-        url,
-        headers={"Authorization": f"token {GITHUB_TOKEN}"},
-        data=json.dumps({
-            "message": "Update Project_Ticket.csv",
-            "content": base64.b64encode(content.encode()).decode(),
-            "sha": get_sha_of_file()
-        })
-    )
-    if response.status_code in (201, 200):
-        st.success("Project ticket saved to GitHub!")
-    else:
-        st.error("Failed to save project ticket to GitHub.")
-
-def get_sha_of_file():
-    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
-    response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
-    return response.json()['sha'] if response.status_code == 200 else None
 
 # Show section to view and edit existing projects in a table.
 st.header("Existing Projects")
@@ -171,4 +171,3 @@ priority_plot = (
     .properties(height=300)
 )
 st.altair_chart(priority_plot, use_container_width=True, theme="streamlit")
-
