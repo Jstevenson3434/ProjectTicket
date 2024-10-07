@@ -76,30 +76,45 @@ with st.form("add_project_form"):
     submitted = st.form_submit_button("Submit")
 
 if submitted:
-    recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
-    today = datetime.datetime.now().strftime("%m-%d-%Y")
-    df_new = pd.DataFrame(
-        [
-            {
-                "ID": f"PROJECT-{recent_project_number}",
-                "Name": name,
-                "Title": title,
-                "Description": description,
-                "Business Case": bc,
-                "Status": "Open",
-                "Priority": priority,
-                "Date Submitted": today,
-                "Reviewed Priority": "Set After Review",
-            }
-        ]
-    )
+    # Check if any required fields are empty
+    if not name:
+        st.error("Please enter a name for the project.")
+    elif not title:
+        st.error("Please enter a project title.")
+    elif not description:
+        st.error("Please enter a project description.")
+    elif not bc:
+        st.error("Please enter a business case.")
+    else:
+        recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
+        today = datetime.datetime.now().strftime("%m-%d-%Y")
+        
+        # Create a DataFrame for the new project
+        df_new = pd.DataFrame(
+            [
+                {
+                    "ID": f"PROJECT-{recent_project_number}",
+                    "Name": name,
+                    "Title": title,
+                    "Description": description,
+                    "Business Case": bc,
+                    "Status": "Open",
+                    "Priority": priority,
+                    "Date Submitted": today,
+                    "Reviewed Priority": "Set After Review",
+                }
+            ]
+        )
 
-    st.write("Project submitted! Here are the project details:")
-    st.dataframe(df_new, use_container_width=True, hide_index=True)
+        st.write("Project submitted! Here are the project details:")
+        st.dataframe(df_new, use_container_width=True, hide_index=True)
 
-    st.session_state.df = pd.concat([st.session_state.df, df_new], axis=0)
-    content = st.session_state.df.to_csv(index=False)
-    save_to_github(content)
+        # Append the new project to the existing DataFrame and save it to GitHub.
+        st.session_state.df = pd.concat([st.session_state.df, df_new], ignore_index=True)
+
+        content = st.session_state.df.to_csv(index=False)
+        save_to_github(content)
+
 
 # Display the existing projects table for all users, ensure hide_index=True to remove the blank column
 st.dataframe(st.session_state.df, use_container_width=True, hide_index=True)
