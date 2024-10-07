@@ -122,13 +122,19 @@ edited_df = st.data_editor(
         "Status": st.column_config.SelectboxColumn(
             "Status",
             help="Project status",
-            options=["Open", "In Progress", "Completed"],
+            options=["Open", "Under Review", "In Progress", "Completed"],
             required=True,
         ),
         "Priority": st.column_config.SelectboxColumn(
             "Priority",
             help="Project priority",
             options=["High", "Medium", "Low"],
+            required=True,
+        ),
+        "Reviewed Priority": st.column_config.SelectboxColumn(
+            "Reviewed Priority",
+            help="Project priority",
+            options=["1", "2", "3","4", "5", "6","7", "8", "9", "10"],
             required=True,
         ),
     },
