@@ -22,7 +22,7 @@ st.title("📊 Project Management System")
 
 # Sample login credentials (replace these with your own)
 ADMIN_USER = "admin"
-ADMIN_PASSWORD = "adminpassword"
+ADMIN_PASSWORD = "Walter34$"
 
 # Initialize session state for login status
 if 'logged_in' not in st.session_state:
