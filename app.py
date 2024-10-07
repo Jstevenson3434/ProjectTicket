@@ -179,16 +179,7 @@ name_plot = (
     .encode(
         x="Name:N",
         y="count():Q",
-        color="Status:N",
     )
 )
 st.altair_chart(name_plot, use_container_width=True, theme="streamlit")
 
-st.write("##### Current project priorities")
-priority_plot = (
-    alt.Chart(edited_df)
-    .mark_arc()
-    .encode(theta="count():Q", color="Priority:N")
-    .properties(height=300)
-)
-st.altair_chart(priority_plot, use_container_width=True, theme="streamlit") 
