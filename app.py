@@ -101,19 +101,6 @@ if submitted:
     content = st.session_state.df.to_csv(index=False)
     save_to_github(content)
 
-# Inject custom CSS to control the DataFrame display without scroll
-st.markdown(
-    """
-    <style>
-    div[data-testid="stDataFrame"] {
-        max-height: 600px;  /* Set max height */
-        overflow-y: auto;   /* Scroll only if needed */
-        overflow-x: hidden; /* Hide horizontal scroll */
-    }
-    </style>
-    """, unsafe_allow_html=True
-)
-
 # Display the existing projects table for all users, ensure hide_index=True to remove the blank column
 st.dataframe(st.session_state.df, use_container_width=True, hide_index=True)
 
