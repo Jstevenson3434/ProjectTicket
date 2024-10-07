@@ -108,9 +108,7 @@ if submitted:
     content = st.session_state.df.to_csv(index=False)
     save_to_github(content)
 
-# Show section to view existing projects
-st.write("### Full Projects Table")
-st.table(st.session_state.df) 
+
 
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
