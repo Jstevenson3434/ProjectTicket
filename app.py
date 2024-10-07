@@ -7,7 +7,7 @@ import streamlit as st
 import requests
 import json
 import base64  # Import base64 module
-from io import StringIO  # Import StringIO from io module
+from io import StringIO  # Import StringIO from io module 
 
 # Define the GitHub repository information and the CSV file path.
 GITHUB_API_URL = "https://api.github.com"
@@ -25,7 +25,6 @@ st.write(
     """
 )
 
-
 def save_to_github(content):
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
     response = requests.put(
@@ -42,12 +41,10 @@ def save_to_github(content):
     else:
         st.error("Failed to save project ticket to GitHub.")
 
-
 def get_sha_of_file():
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
     response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
     return response.json()['sha'] if response.status_code == 200 else None
-
 
 # Load existing projects from GitHub or create an empty DataFrame if the file doesn't exist.
 def load_projects_from_github():
@@ -63,7 +60,6 @@ def load_projects_from_github():
         # Create an empty DataFrame with specified columns.
         columns = ["ID", "Title", "Description", "Status", "Priority", "Date Submitted"]
         return pd.DataFrame(columns=columns)
-
 
 # Initialize DataFrame
 st.session_state.df = load_projects_from_github()
@@ -111,66 +107,55 @@ if submitted:
 
 # Show section to view and edit existing projects in a table.
 st.header("Existing Projects")
-st.write(f"Number of projects: `{len(st.session_state.df)}`")
+st.write(f"Number of projects: {len(st.session_state.df)}")
 
-# Authentication section for editing projects
-st.header("Admin Login to Edit Projects")
-username = st.text_input("Username")
-password = st.text_input("Password", type="password")
-login_button = st.button("Login")
+# Show section to view and edit existing projects in a table.
+st.header("Existing Projects")
+st.write(f"Number of projects: {len(st.session_state.df)}")
 
-if 'logged_in' not in st.session_state:
-    st.session_state['logged_in'] = False
+# Show the projects DataFrame with st.data_editor. This lets the user edit the table cells.
+edited_df = st.data_editor(
+    st.session_state.df,
+    use_container_width=True,  # This ensures the table uses the full width of the container
+    hide_index=True,
+    column_config={
+        "Status": st.column_config.SelectboxColumn(
+            "Status",
+            help="Project status",
+            options=["Open", "In Progress", "Completed"],
+            required=True,
+        ),
+        "Priority": st.column_config.SelectboxColumn(
+            "Priority",
+            help="Project priority",
+            options=["High", "Medium", "Low"],
+            required=True,
+        ),
+    },
+    # Disable editing the ID and Date Submitted columns.
+    disabled=["ID", "Date Submitted"],
+)
 
-if login_button and username == "admin" and password == "Walter34$":  # Replace with a real authentication method
-    st.session_state['logged_in'] = True
-    st.success("You are logged in!")
 
-# Display the projects DataFrame
-st.dataframe(st.session_state.df, use_container_width=True, hide_index=True)
-
-if st.session_state['logged_in']:
-    # Show the editable DataFrame with `st.data_editor`. This lets the user edit the table cells.
-    edited_df = st.data_editor(
-        st.session_state.df,
-        hide_index=True,
-        column_config={
-            "Status": st.column_config.SelectboxColumn(
-                "Status",
-                help="Project status",
-                options=["Open", "In Progress", "Completed"],
-                required=True,
-            ),
-            "Priority": st.column_config.SelectboxColumn(
-                "Priority",
-                help="Project priority",
-                options=["High", "Medium", "Low"],
-                required=True,
-            ),
-        },
-        # Disable editing the ID and Date Submitted columns.
-        disabled=["ID", "Date Submitted"],
-    )
-
-    # Update the session state DataFrame with edited data and save to GitHub.
-    if not edited_df.equals(st.session_state.df):
-        st.session_state.df = edited_df
-        content = st.session_state.df.to_csv(index=False)
-        save_to_github(content)
+# Update the session state DataFrame with edited data and save to GitHub.
+if not edited_df.equals(st.session_state.df):
+    st.session_state.df = edited_df
+    content = st.session_state.df.to_csv(index=False)
+    save_to_github(content)
 
 # Show some metrics and charts about the projects.
 st.header("Statistics")
 
-# Show metrics side by side using `st.columns` and `st.metric`.
+# Show metrics side by side using st.columns and st.metric.
 col1, col2 = st.columns(2)
 num_open_projects = len(st.session_state.df[st.session_state.df.Status == "Open"])
 col1.metric(label="Number of open projects", value=num_open_projects)
 col2.metric(label="Total projects submitted", value=len(st.session_state.df))
 
-# Show two Altair charts using `st.altair_chart`.
+# Show two Altair charts using st.altair_chart.
 st.write("##### Project status distribution")
 status_plot = (
-    alt.Chart(st.session_state.df)
+    alt.Chart(edited_df)
     .mark_bar()
     .encode(
         x="Status:N",
@@ -182,10 +167,9 @@ st.altair_chart(status_plot, use_container_width=True, theme="streamlit")
 
 st.write("##### Current project priorities")
 priority_plot = (
-    alt.Chart(st.session_state.df)
+    alt.Chart(edited_df)
     .mark_arc()
     .encode(theta="count():Q", color="Priority:N")
     .properties(height=300)
 )
-st.altair_chart(priority_plot, use_container_width=True, theme="streamlit")
-
+st.altair_chart(priority_plot, use_container_width=True, theme="streamlit") 
