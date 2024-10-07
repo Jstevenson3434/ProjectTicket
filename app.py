@@ -58,7 +58,7 @@ def load_projects_from_github():
         return decoded_content
     else:
         # Create an empty DataFrame with specified columns.
-        columns = ["ID", "Title", "Description", "Status", "Priority", "Date Submitted"]
+        columns = ["ID", "Title", "Description", "Status", "Priority", "Date Submitted", "Reviewed Priority"]
         return pd.DataFrame(columns=columns)
 
 # Initialize DataFrame
