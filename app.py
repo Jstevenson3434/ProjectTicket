@@ -128,7 +128,7 @@ if not st.session_state.is_authenticated:
 
     if login_button:
         # Replace with your actual login validation logic
-        if username == "your_username" and password == "your_password":
+        if username == "admin" and password == "Walter34$":
             st.session_state.is_authenticated = True
             st.success("You are logged in!")
         else:
