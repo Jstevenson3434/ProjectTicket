@@ -6,8 +6,8 @@ import pandas as pd
 import streamlit as st
 import requests
 import json
-import base64  # Import base64 module
-from io import StringIO  # Import StringIO from io module 
+import base64
+from io import StringIO
 
 # Define the GitHub repository information and the CSV file path.
 GITHUB_API_URL = "https://api.github.com"
@@ -54,12 +54,10 @@ def load_projects_from_github():
     response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
 
     if response.status_code == 200:
-        # Decode the content from base64
         content = response.json()['content']
         decoded_content = pd.read_csv(StringIO(base64.b64decode(content).decode()))
         return decoded_content
     else:
-        # Create an empty DataFrame with specified columns.
         columns = ["ID", "Title", "Description", "Status", "Priority", "Date Submitted", "Reviewed Priority"]
         return pd.DataFrame(columns=columns)
 
@@ -78,7 +76,6 @@ with st.form("add_project_form"):
     submitted = st.form_submit_button("Submit")
 
 if submitted:
-    # Create a DataFrame for the new project and append it to the DataFrame in session state.
     recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
     today = datetime.datetime.now().strftime("%m-%d-%Y")
     df_new = pd.DataFrame(
@@ -97,19 +94,27 @@ if submitted:
         ]
     )
 
-    # Show a success message.
     st.write("Project submitted! Here are the project details:")
     st.dataframe(df_new, use_container_width=True, hide_index=True)
 
-    # Append the new project to the existing DataFrame and save it to GitHub.
     st.session_state.df = pd.concat([st.session_state.df, df_new], axis=0)
-
-    # Save to GitHub
     content = st.session_state.df.to_csv(index=False)
     save_to_github(content)
 
-# Display the existing projects table for all users without scroll
-st.write('<style>div[data-testid="stDataFrame"]{height:auto; max-height: 800px; overflow-y:auto;}</style>', unsafe_allow_html=True)
+# Inject custom CSS to control the DataFrame display without scroll
+st.markdown(
+    """
+    <style>
+    div[data-testid="stDataFrame"] {
+        max-height: 600px;  /* Set max height */
+        overflow-y: auto;   /* Scroll only if needed */
+        overflow-x: hidden; /* Hide horizontal scroll */
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
+
+# Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
 
 # Show a button to log in for editing
@@ -123,7 +128,7 @@ if not st.session_state.is_authenticated:
 
     if login_button:
         # Replace with your actual login validation logic
-        if username == "your_username" and password == "your_password":  # Change to your logic
+        if username == "your_username" and password == "your_password":
             st.session_state.is_authenticated = True
             st.success("You are logged in!")
         else:
@@ -131,10 +136,9 @@ if not st.session_state.is_authenticated:
 
 # If the user is authenticated, show the edit section
 if st.session_state.is_authenticated:
-    # Show the projects DataFrame with st.data_editor. This lets the user edit the table cells.
     edited_df = st.data_editor(
         st.session_state.df,
-        use_container_width=True,  # This ensures the table uses the full width of the container
+        use_container_width=True,
         hide_index=True,
         column_config={
             "Status": st.column_config.SelectboxColumn(
@@ -156,11 +160,9 @@ if st.session_state.is_authenticated:
                 required=True,
             ),
         },
-        # Disable editing the ID and Date Submitted columns.
         disabled=["ID", "Date Submitted"],
     )
 
-    # Update the session state DataFrame with edited data and save to GitHub.
     if not edited_df.equals(st.session_state.df):
         st.session_state.df = edited_df
         content = st.session_state.df.to_csv(index=False)
@@ -169,13 +171,11 @@ if st.session_state.is_authenticated:
 # Show some metrics and charts about the projects.
 st.header("Statistics")
 
-# Show metrics side by side using st.columns and st.metric.
 col1, col2 = st.columns(2)
 num_open_projects = len(st.session_state.df[st.session_state.df.Status == "Open"])
 col1.metric(label="Number of open projects", value=num_open_projects)
 col2.metric(label="Total projects submitted", value=len(st.session_state.df))
 
-# Show two Altair charts using st.altair_chart.
 st.write("##### Project status distribution")
 status_plot = (
     alt.Chart(st.session_state.df)
