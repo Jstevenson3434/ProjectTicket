@@ -185,7 +185,7 @@ col1.metric(label="Number of open projects", value=num_open_projects)
 col2.metric(label="Total projects submitted", value=len(st.session_state.df))
 
 # Show two Altair charts using st.altair_chart.
-st.write("##### Project status distribution")
+st.write("##### Project by Status")
 status_plot = (
     alt.Chart(st.session_state.df)
     .mark_bar()
@@ -197,7 +197,7 @@ status_plot = (
 )
 st.altair_chart(status_plot, use_container_width=True, theme="streamlit")
 
-st.write("##### Projects via Person")
+st.write("##### Projects by User")
 name_plot = (
     alt.Chart(st.session_state.df)
     .mark_bar()
