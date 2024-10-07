@@ -68,8 +68,8 @@ st.session_state.df = load_projects_from_github()
 st.header("Add a new project")
 
 with st.form("add_project_form"):
-    title = st.text_input("Project Title")
     name = st.text_input("Name")
+    title = st.text_input("Project Title")
     description = st.text_area("Project Description")
     bc = st.text_area("Bussiness Case")
     priority = st.selectbox("Priority", ["High", "Medium", "Low"])
