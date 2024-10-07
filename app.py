@@ -25,23 +25,7 @@ st.write(
     """
 )
 
-# Initialize session state variables
-if "is_authenticated" not in st.session_state:
-    st.session_state.is_authenticated = False
-
-# Simple login form
-if not st.session_state.is_authenticated:
-    st.header("Login to Edit Projects")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    
-    if st.button("Login"):
-        if username == "admin" and password == "password":  # Replace with your login logic
-            st.session_state.is_authenticated = True
-            st.success("Logged in successfully!")
-        else:
-            st.error("Incorrect username or password.")
-
+# Function to save content to GitHub
 def save_to_github(content):
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
     response = requests.put(
@@ -58,12 +42,13 @@ def save_to_github(content):
     else:
         st.error("Failed to save project ticket to GitHub.")
 
+# Function to get SHA of the existing file on GitHub
 def get_sha_of_file():
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
     response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
     return response.json()['sha'] if response.status_code == 200 else None
 
-# Load existing projects from GitHub or create an empty DataFrame if the file doesn't exist.
+# Function to load existing projects from GitHub
 def load_projects_from_github():
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
     response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
@@ -84,57 +69,69 @@ st.session_state.df = load_projects_from_github()
 # Show a section to add a new project.
 st.header("Add a new project")
 
-if st.session_state.is_authenticated:  # Check if the user is authenticated
-    with st.form("add_project_form"):
-        name = st.text_input("Name")
-        title = st.text_input("Project Title")
-        description = st.text_area("Project Description")
-        bc = st.text_area("Business Case")
-        priority = st.selectbox("Priority", ["High", "Medium", "Low"])
-        submitted = st.form_submit_button("Submit")
+with st.form("add_project_form"):
+    name = st.text_input("Name")
+    title = st.text_input("Project Title")
+    description = st.text_area("Project Description")
+    bc = st.text_area("Business Case")
+    priority = st.selectbox("Priority", ["High", "Medium", "Low"])
+    submitted = st.form_submit_button("Submit")
 
-    if submitted:
-        # Create a DataFrame for the new project and append it to the DataFrame in session state.
-        recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
-        today = datetime.datetime.now().strftime("%m-%d-%Y")
-        df_new = pd.DataFrame(
-            [
-                {
-                    "ID": f"PROJECT-{recent_project_number}",
-                    "Name": name,
-                    "Title": title,
-                    "Description": description,
-                    "Business Case": bc,
-                    "Status": "Open",
-                    "Priority": priority,
-                    "Date Submitted": today,
-                    "Reviewed Priority": "Set After Review",
-                }
-            ]
-        )
+if submitted:
+    # Create a DataFrame for the new project and append it to the DataFrame in session state.
+    recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
+    today = datetime.datetime.now().strftime("%m-%d-%Y")
+    df_new = pd.DataFrame(
+        [
+            {
+                "ID": f"PROJECT-{recent_project_number}",
+                "Name": name,
+                "Title": title,
+                "Description": description,
+                "Business Case": bc,
+                "Status": "Open",
+                "Priority": priority,
+                "Date Submitted": today,
+                "Reviewed Priority": "Set After Review",
+            }
+        ]
+    )
 
-        # Show a success message.
-        st.write("Project submitted! Here are the project details:")
-        st.dataframe(df_new, use_container_width=True, hide_index=True)
+    # Show a success message.
+    st.write("Project submitted! Here are the project details:")
+    st.dataframe(df_new, use_container_width=True, hide_index=True)
 
-        # Append the new project to the existing DataFrame and save it to GitHub.
-        st.session_state.df = pd.concat([st.session_state.df, df_new], axis=0)
+    # Append the new project to the existing DataFrame and save it to GitHub.
+    st.session_state.df = pd.concat([st.session_state.df, df_new], axis=0)
 
-        # Save to GitHub
-        content = st.session_state.df.to_csv(index=False)
-        save_to_github(content)
+    # Save to GitHub
+    content = st.session_state.df.to_csv(index=False)
+    save_to_github(content)
 
-# Show section to view existing projects in a table.
+# Show section to view existing projects
 st.header("Existing Projects")
 st.write(f"Number of projects: {len(st.session_state.df)}")
 
-# Display the entire existing projects table all at once (not scrollable)
-st.write("### Full Projects Table")
-st.table(st.session_state.df)  # Shows the entire DataFrame at once (not scrollable)
+# Show a button to log in for editing
+if "is_authenticated" not in st.session_state:
+    st.session_state.is_authenticated = False
 
-# Show the projects DataFrame with st.data_editor for editing.
-if st.session_state.is_authenticated:  # Check if the user is authenticated
-    st.write("### Edit Existing Projects")
+if not st.session_state.is_authenticated:
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    login_button = st.button("Login")
+
+    if login_button:
+        # Replace with your actual login validation logic
+        if username == "your_username" and password == "your_password":  # Change to your logic
+            st.session_state.is_authenticated = True
+            st.success("You are logged in!")
+        else:
+            st.error("Invalid username or password.")
+
+# If the user is authenticated, show the edit section
+if st.session_state.is_authenticated:
+    # Show the projects DataFrame with st.data_editor. This lets the user edit the table cells.
     edited_df = st.data_editor(
         st.session_state.df,
         use_container_width=True,  # This ensures the table uses the full width of the container
