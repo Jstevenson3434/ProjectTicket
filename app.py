@@ -116,7 +116,6 @@ st.write(f"Number of projects: `{len(st.session_state.df)}`")
 # Show the projects DataFrame with `st.data_editor`. This lets the user edit the table cells.
 edited_df = st.data_editor(
     st.session_state.df,
-    use_container_width=True,  # This ensures the table uses the full width of the container
     hide_index=True,
     column_config={
         "Status": st.column_config.SelectboxColumn(
