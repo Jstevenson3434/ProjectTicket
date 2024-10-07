@@ -109,11 +109,14 @@ if submitted:
 st.header("Existing Projects")
 st.write(f"Number of projects: `{len(st.session_state.df)}`")
 
+# Show section to view and edit existing projects in a table.
+st.header("Existing Projects")
+st.write(f"Number of projects: `{len(st.session_state.df)}`")
+
 # Show the projects DataFrame with `st.data_editor`. This lets the user edit the table cells.
 edited_df = st.data_editor(
     st.session_state.df,
-    use_container_width=True,
-    use_container_width=True,
+    use_container_width=True,  # This ensures the table uses the full width of the container
     hide_index=True,
     column_config={
         "Status": st.column_config.SelectboxColumn(
@@ -132,6 +135,7 @@ edited_df = st.data_editor(
     # Disable editing the ID and Date Submitted columns.
     disabled=["ID", "Date Submitted"],
 )
+
 
 # Update the session state DataFrame with edited data and save to GitHub.
 if not edited_df.equals(st.session_state.df):
