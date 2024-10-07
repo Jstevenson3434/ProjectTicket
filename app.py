@@ -133,7 +133,7 @@ edited_df = st.data_editor(
         ),
         "Reviewed Priority": st.column_config.SelectboxColumn(
             "Reviewed Priority",
-            help="Project priority",
+            help="Project reviewed priority",
             options=["1", "2", "3","4", "5", "6","7", "8", "9", "10"],
             required=True,
         ),
