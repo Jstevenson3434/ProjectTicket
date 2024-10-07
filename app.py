@@ -21,8 +21,7 @@ st.set_page_config(page_title="Project Management System", page_icon="📊")
 st.title("📊 Project Management System")
 st.write(
     """
-    This app shows how you can build an internal tool in Streamlit for project management. Here, we are 
-    implementing a project ticket workflow. Users can create new projects, edit existing projects, and view some statistics.
+    Please utilize this app to submit projects for review.
     """
 )
 
@@ -70,7 +69,9 @@ st.header("Add a new project")
 
 with st.form("add_project_form"):
     title = st.text_input("Project Title")
+    name = st.text_input("Name")
     description = st.text_area("Project Description")
+    bc = st.text_area("Bussiness Case")
     priority = st.selectbox("Priority", ["High", "Medium", "Low"])
     submitted = st.form_submit_button("Submit")
 
@@ -82,8 +83,10 @@ if submitted:
         [
             {
                 "ID": f"PROJECT-{recent_project_number}",
+                "Name": name,
                 "Title": title,
                 "Description": description,
+                "Busssiness Case": bc,
                 "Status": "Open",
                 "Priority": priority,
                 "Date Submitted": today,
