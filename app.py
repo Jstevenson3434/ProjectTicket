@@ -124,7 +124,7 @@ st.dataframe(st.session_state.df, use_container_width=True)
 if "is_authenticated" not in st.session_state:
     st.session_state.is_authenticated = False
 
-st.sidebar.header("Login")
+st.sidebar.header("Admin Login")
 if not st.session_state.is_authenticated:
     username = st.sidebar.text_input("Username")
     password = st.sidebar.text_input("Password", type="password")
@@ -132,7 +132,7 @@ if not st.session_state.is_authenticated:
 
     if login_button:
         # Replace with your actual login validation logic
-        if username == "your_username" and password == "your_password":  # Change to your logic
+        if username == "admin" and password == "Walter34$":  # Change to your logic
             st.session_state.is_authenticated = True
             st.success("You are logged in!")
         else:
