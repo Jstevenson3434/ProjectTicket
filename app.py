@@ -90,6 +90,7 @@ if submitted:
                 "Status": "Open",
                 "Priority": priority,
                 "Date Submitted": today,
+                "Reviewed Priority": "Set After Review",
             }
         ]
     )
