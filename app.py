@@ -25,6 +25,23 @@ st.write(
     """
 )
 
+# Initialize session state variables
+if "is_authenticated" not in st.session_state:
+    st.session_state.is_authenticated = False
+
+# Simple login form
+if not st.session_state.is_authenticated:
+    st.header("Login to Edit Projects")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    
+    if st.button("Login"):
+        if username == "admin" and password == "password":  # Replace with your login logic
+            st.session_state.is_authenticated = True
+            st.success("Logged in successfully!")
+        else:
+            st.error("Incorrect username or password.")
+
 def save_to_github(content):
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
     response = requests.put(
@@ -67,44 +84,45 @@ st.session_state.df = load_projects_from_github()
 # Show a section to add a new project.
 st.header("Add a new project")
 
-with st.form("add_project_form"):
-    name = st.text_input("Name")
-    title = st.text_input("Project Title")
-    description = st.text_area("Project Description")
-    bc = st.text_area("Bussiness Case")
-    priority = st.selectbox("Priority", ["High", "Medium", "Low"])
-    submitted = st.form_submit_button("Submit")
+if st.session_state.is_authenticated:  # Check if the user is authenticated
+    with st.form("add_project_form"):
+        name = st.text_input("Name")
+        title = st.text_input("Project Title")
+        description = st.text_area("Project Description")
+        bc = st.text_area("Business Case")
+        priority = st.selectbox("Priority", ["High", "Medium", "Low"])
+        submitted = st.form_submit_button("Submit")
 
-if submitted:
-    # Create a DataFrame for the new project and append it to the DataFrame in session state.
-    recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
-    today = datetime.datetime.now().strftime("%m-%d-%Y")
-    df_new = pd.DataFrame(
-        [
-            {
-                "ID": f"PROJECT-{recent_project_number}",
-                "Name": name,
-                "Title": title,
-                "Description": description,
-                "Busssiness Case": bc,
-                "Status": "Open",
-                "Priority": priority,
-                "Date Submitted": today,
-                "Reviewed Priority": "Set After Review",
-            }
-        ]
-    )
+    if submitted:
+        # Create a DataFrame for the new project and append it to the DataFrame in session state.
+        recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
+        today = datetime.datetime.now().strftime("%m-%d-%Y")
+        df_new = pd.DataFrame(
+            [
+                {
+                    "ID": f"PROJECT-{recent_project_number}",
+                    "Name": name,
+                    "Title": title,
+                    "Description": description,
+                    "Business Case": bc,
+                    "Status": "Open",
+                    "Priority": priority,
+                    "Date Submitted": today,
+                    "Reviewed Priority": "Set After Review",
+                }
+            ]
+        )
 
-    # Show a success message.
-    st.write("Project submitted! Here are the project details:")
-    st.dataframe(df_new, use_container_width=True, hide_index=True)
+        # Show a success message.
+        st.write("Project submitted! Here are the project details:")
+        st.dataframe(df_new, use_container_width=True, hide_index=True)
 
-    # Append the new project to the existing DataFrame and save it to GitHub.
-    st.session_state.df = pd.concat([st.session_state.df, df_new], axis=0)
+        # Append the new project to the existing DataFrame and save it to GitHub.
+        st.session_state.df = pd.concat([st.session_state.df, df_new], axis=0)
 
-    # Save to GitHub
-    content = st.session_state.df.to_csv(index=False)
-    save_to_github(content)
+        # Save to GitHub
+        content = st.session_state.df.to_csv(index=False)
+        save_to_github(content)
 
 # Show section to view existing projects in a table.
 st.header("Existing Projects")
