@@ -16,8 +16,8 @@ REPO_NAME = "ProjectTicket"  # Replace with your GitHub repository name
 CSV_FILE_PATH = "Data.csv"  # The path to your CSV file in the repo
 GITHUB_TOKEN = "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"  # Replace with your GitHub token
 
-# Show app title and description.
-st.set_page_config(page_title="Project Management System", page_icon="📊")
+# Set page configuration with a wide layout.
+st.set_page_config(page_title="Project Management System", page_icon="📊", layout="wide")
 st.title("📊 Project Management System")
 st.write(
     """
@@ -168,3 +168,4 @@ priority_plot = (
     .properties(height=300)
 )
 st.altair_chart(priority_plot, use_container_width=True, theme="streamlit")
+
