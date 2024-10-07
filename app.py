@@ -7,7 +7,7 @@ import streamlit as st
 import requests
 import json
 import base64  # Import base64 module
-from io import StringIO  # Import StringIO from io module
+from io import StringIO  # Import StringIO from io module 
 
 # Define the GitHub repository information and the CSV file path.
 GITHUB_API_URL = "https://api.github.com"
@@ -19,24 +19,12 @@ GITHUB_TOKEN = "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"  # Replace with your G
 # Set page configuration with a wide layout.
 st.set_page_config(page_title="Project Management System", page_icon="📊")
 st.title("📊 Project Management System")
+st.write(
+    """
+    Please utilize this app to submit projects for review.
+    """
+)
 
-# Sample login credentials (replace these with your own)
-ADMIN_USER = "admin"
-ADMIN_PASSWORD = "Walter34$"
-
-# Initialize session state for login status
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
-
-# Function to handle login
-def login(username, password):
-    if username == ADMIN_USER and password == ADMIN_PASSWORD:
-        st.session_state.logged_in = True
-        st.success(f"Welcome, {username}!")
-    else:
-        st.error("Invalid username or password")
-
-# GitHub functions for saving and loading data
 def save_to_github(content):
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
     response = requests.put(
@@ -76,14 +64,14 @@ def load_projects_from_github():
 # Initialize DataFrame
 st.session_state.df = load_projects_from_github()
 
-# Show a section to add a new project (always available)
+# Show a section to add a new project.
 st.header("Add a new project")
 
 with st.form("add_project_form"):
     name = st.text_input("Name")
     title = st.text_input("Project Title")
     description = st.text_area("Project Description")
-    bc = st.text_area("Business Case")
+    bc = st.text_area("Bussiness Case")
     priority = st.selectbox("Priority", ["High", "Medium", "Low"])
     submitted = st.form_submit_button("Submit")
 
@@ -118,13 +106,17 @@ if submitted:
     content = st.session_state.df.to_csv(index=False)
     save_to_github(content)
 
-# Show section to view and edit existing projects in a table (restricted to logged-in users for editing)
+# Show section to view existing projects in a table.
 st.header("Existing Projects")
 st.write(f"Number of projects: {len(st.session_state.df)}")
 
-# Show the projects DataFrame
-if st.session_state.logged_in:
-    # Allow editing the DataFrame for logged-in users
+# Display the entire existing projects table all at once (not scrollable)
+st.write("### Full Projects Table")
+st.table(st.session_state.df)  # Shows the entire DataFrame at once (not scrollable)
+
+# Show the projects DataFrame with st.data_editor for editing.
+if st.session_state.is_authenticated:  # Check if the user is authenticated
+    st.write("### Edit Existing Projects")
     edited_df = st.data_editor(
         st.session_state.df,
         use_container_width=True,  # This ensures the table uses the full width of the container
@@ -159,10 +151,6 @@ if st.session_state.logged_in:
         content = st.session_state.df.to_csv(index=False)
         save_to_github(content)
 
-else:
-    # Display the DataFrame in read-only mode for non-logged-in users
-    st.dataframe(st.session_state.df, use_container_width=True, hide_index=True)
-
 # Show some metrics and charts about the projects.
 st.header("Statistics")
 
@@ -195,13 +183,3 @@ name_plot = (
     )
 )
 st.altair_chart(name_plot, use_container_width=True, theme="streamlit")
-
-# Login form (visible if not logged in)
-if not st.session_state.logged_in:
-    st.subheader("Admin Login to Edit Projects")
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submitted = st.form_submit_button("Login")
-        if submitted:
-            login(username, password)
