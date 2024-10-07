@@ -22,6 +22,7 @@ st.title("📊 Project Management System")
 st.write(
     """
     Please utilize this app to submit projects for review.
+    For Questions or cpomments please contact Justin Stevenson.
     """
 )
 
@@ -38,9 +39,9 @@ def save_to_github(content):
         })
     )
     if response.status_code in (201, 200):
-        st.success("Project ticket saved to GitHub!")
+        st.success("Project ticket saved!")
     else:
-        st.error("Failed to save project ticket to GitHub.")
+        st.error("Failed to save project ticket.")
 
 # Function to get SHA of the existing file on GitHub
 def get_sha_of_file():
