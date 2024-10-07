@@ -155,19 +155,25 @@ if st.session_state['logged_in']:
         content = st.session_state.df.to_csv(index=False)
         save_to_github(content)
 
+    # Pass `edited_df` to the statistics section
+    stats_df = edited_df
+else:
+    # Pass the original DataFrame to the statistics section if not logged in
+    stats_df = st.session_state.df
+
 # Show some metrics and charts about the projects.
 st.header("Statistics")
 
 # Show metrics side by side using `st.columns` and `st.metric`.
 col1, col2 = st.columns(2)
-num_open_projects = len(st.session_state.df[st.session_state.df.Status == "Open"])
+num_open_projects = len(stats_df[stats_df.Status == "Open"])
 col1.metric(label="Number of open projects", value=num_open_projects)
-col2.metric(label="Total projects submitted", value=len(st.session_state.df))
+col2.metric(label="Total projects submitted", value=len(stats_df))
 
 # Show two Altair charts using `st.altair_chart`.
 st.write("##### Project status distribution")
 status_plot = (
-    alt.Chart(edited_df)
+    alt.Chart(stats_df)
     .mark_bar()
     .encode(
         x="Status:N",
@@ -179,11 +185,9 @@ st.altair_chart(status_plot, use_container_width=True, theme="streamlit")
 
 st.write("##### Current project priorities")
 priority_plot = (
-    alt.Chart(edited_df)
+    alt.Chart(stats_df)
     .mark_arc()
     .encode(theta="count():Q", color="Priority:N")
     .properties(height=300)
 )
 st.altair_chart(priority_plot, use_container_width=True, theme="streamlit")
-
-
