@@ -21,8 +21,7 @@ st.set_page_config(page_title="Project Management System", page_icon="📊")
 st.title("📊 Project Management System")
 st.write(
     """
-    Please utilize this app to submit projects for review.
-    For Questions or cpomments please contact Justin Stevenson.
+    Please utilize this app to submit projects for review. For Questions or cpomments please contact Justin Stevenson.
     """
 )
 
