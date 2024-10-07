@@ -172,6 +172,18 @@ status_plot = (
 )
 st.altair_chart(status_plot, use_container_width=True, theme="streamlit")
 
+st.write("##### Projects via Person")
+name_plot = (
+    alt.Chart(edited_df)
+    .mark_bar()
+    .encode(
+        x="Name:N",
+        y="count():Q",
+        color="Status:N",
+    )
+)
+st.altair_chart(name_plot, use_container_width=True, theme="streamlit")
+
 st.write("##### Current project priorities")
 priority_plot = (
     alt.Chart(edited_df)
