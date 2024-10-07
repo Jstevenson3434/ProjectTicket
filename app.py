@@ -106,12 +106,6 @@ if submitted:
 st.header("Existing Projects")
 st.write(f"Number of projects: `{len(st.session_state.df)}`")
 
-st.info(
-    "You can edit the projects by double-clicking on a cell. Note how the plots below "
-    "update automatically! You can also sort the table by clicking on the column headers.",
-    icon="✍️",
-)
-
 # Show the projects DataFrame with `st.data_editor`. This lets the user edit the table cells.
 edited_df = st.data_editor(
     st.session_state.df,
