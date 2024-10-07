@@ -108,9 +108,8 @@ if submitted:
     content = st.session_state.df.to_csv(index=False)
     save_to_github(content)
 
-
-
-# Display the existing projects table for all users
+# Display the existing projects table for all users without scroll
+st.write('<style>div[data-testid="stDataFrame"]{height:auto; max-height: 800px; overflow-y:auto;}</style>', unsafe_allow_html=True)
 st.dataframe(st.session_state.df, use_container_width=True)
 
 # Show a button to log in for editing
