@@ -114,8 +114,8 @@ st.markdown(
     """, unsafe_allow_html=True
 )
 
-# Display the existing projects table for all users
-st.dataframe(st.session_state.df, use_container_width=True)
+# Display the existing projects table for all users, ensure hide_index=True to remove the blank column
+st.dataframe(st.session_state.df, use_container_width=True, hide_index=True)
 
 # Show a button to log in for editing
 if "is_authenticated" not in st.session_state:
