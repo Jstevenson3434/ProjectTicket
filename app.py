@@ -14,7 +14,15 @@ GITHUB_API_URL = "https://api.github.com"
 REPO_OWNER = "jstevenson3434"  # Replace with your GitHub username
 REPO_NAME = "ProjectTicket"  # Replace with your GitHub repository name
 CSV_FILE_PATH = "Data.csv"  # The path to your CSV file in the repo
-GITHUB_TOKEN = "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"  # Replace with your GitHub token
+
+# Get the GitHub token from the environment variable
+GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')  # Safely retrieve the GitHub token
+
+# Check if the token was retrieved
+if not GITHUB_TOKEN:
+    st.error("GitHub token not found! Please set the GITHUB_TOKEN environment variable.")
+    st.stop()
+
 
 # Set page configuration with a wide layout.
 st.set_page_config(page_title="Analytics and AI Project Management System", page_icon="📊")
