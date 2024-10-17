@@ -17,8 +17,8 @@ CSV_FILE_PATH = "Data.csv"  # The path to your CSV file in the repo
 GITHUB_TOKEN = "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"  # Replace with your GitHub token
 
 # Set page configuration with a wide layout.
-st.set_page_config(page_title="Project Management System", page_icon="📊")
-st.title("📊 Project Management System")
+st.set_page_config(page_title="Analytics and AI Project Management System", page_icon="📊")
+st.title("📊 Analytics and AI Project Management System")
 st.write(
     """
     Please utilize this app to submit projects for review.
