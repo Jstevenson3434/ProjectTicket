@@ -1,3 +1,2 @@
-ID,Title,Description,Status,Priority,Date Submitted,Name,Reviewed Priority,Business Case
-PROJECT-1100,Stock levels,Keep track of key inventory items by product.   Help tell us what items we are out of by setting a min and max on certain items. ,Open,High,10-23-2024,Adam Hyer,Set After Review,we are lose orders by not having the correct items in stock.  This stocking system would help us easily identify what we need to re-order.
+ID,Title,Description,Status,Priority,Date Submitted,Name,Reviewed Priority,Bussiness Case
 PROJECT-1101,Stock levels,Keep track of key inventory items by product.   Help tell us what items we are out of by setting a min and max on certain items. ,Open,High,10-23-2024,Adam Hyer,Set After Review,we  lose orders by not having the correct items in stock.  This stocking system would help us easily identify what we need to re-order.
