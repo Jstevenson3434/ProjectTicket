@@ -68,7 +68,7 @@ def load_projects_from_github():
     else:
         # Create an empty DataFrame with specified columns.
         columns = ["ID", "Name", "Title", "Description", "Business Case", "Status", "Priority", 
-                   "Date Submitted", "Reviewed Priority", "ROI (hours saved)", "ROI (money saved)"]
+                   "Date Submitted", "Reviewed Priority", "ROI (hours saved per day)", "ROI (financial savings)"]
         return pd.DataFrame(columns=columns)
 
 # Initialize DataFrame
@@ -85,8 +85,8 @@ with st.form("add_project_form"):
     priority = st.selectbox("Priority", ["High", "Medium", "Low"])
     
     # New ROI fields
-    roi_hours_saved = st.number_input("ROI (hours saved)", min_value=0, step=1)
-    roi_money_saved = st.number_input("ROI (money saved)", min_value=0.0, step=100.0)
+    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1)
+    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0)
     
     submitted = st.form_submit_button("Submit")
 
@@ -117,8 +117,8 @@ if submitted:
                     "Priority": priority,
                     "Date Submitted": today,
                     "Reviewed Priority": "Set After Review",
-                    "ROI (hours saved)": roi_hours_saved,
-                    "ROI (money saved)": roi_money_saved
+                    "ROI (hours saved per day)": roi_hours_saved,
+                    "ROI (financial savings)": roi_money_saved
                 }
             ]
         )
@@ -179,13 +179,13 @@ if st.session_state.is_authenticated:
                 options=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
                 required=True,
             ),
-            "ROI (hours saved)": st.column_config.NumberColumn(
-                "ROI (hours saved)",
+            "ROI (hours saved per day)": st.column_config.NumberColumn(
+                "ROI (hours saved per day)",
                 help="Estimated hours saved",
                 required=True,
             ),
-            "ROI (money saved)": st.column_config.NumberColumn(
-                "ROI (money saved)",
+            "ROI (financial savings)": st.column_config.NumberColumn(
+                "ROI (financial savings)",
                 help="Estimated money saved",
                 required=True,
             ),
