@@ -53,8 +53,20 @@ def save_to_github(content):
     )
     if response.status_code in (201, 200):
         st.success("Project ticket saved to GitHub!")
+        
+        # Reset all the session state values after a successful save
+        st.session_state.name = ""
+        st.session_state.title = ""
+        st.session_state.description = ""
+        st.session_state.bc = ""
+        st.session_state.roi_hours_saved = 0
+        st.session_state.roi_money_saved = 0.0
+        st.session_state.department = departments[0]
+        st.session_state.priority = "Medium"
+        
     else:
         st.error("Failed to save project ticket to GitHub.")
+
 
 # Function to get SHA of the existing file on GitHub
 def get_sha_of_file():
