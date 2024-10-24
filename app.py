@@ -1,5 +1,4 @@
 import datetime
-import os
 import pandas as pd
 import streamlit as st
 import requests
@@ -22,20 +21,6 @@ CSV_FILE_PATH = "Data.csv"  # The path to your CSV file in the repo
 
 # Get the GitHub token from the secrets
 GITHUB_TOKEN = st.secrets["github_token"]
-
-# Check if the token was retrieved
-if not GITHUB_TOKEN:
-    st.error("GitHub token not found! Please set the GITHUB_TOKEN environment variable.")
-    st.stop()
-
-# Set page configuration with a wide layout.
-st.set_page_config(page_title="Analytics and AI Project Management System", page_icon="📊")
-st.title("📊 Analytics and AI Project Management System")
-st.write(
-    """
-    Please utilize this app to submit all data analytic and artificial intelligence project ideas for priority and completion date review.
-    """
-)
 
 # Function to save content to GitHub
 def save_to_github(content):
@@ -91,7 +76,7 @@ def reset_form():
     st.session_state['department'] = departments[0]
     st.session_state['priority'] = 'Medium'
 
-# Initialize form state
+# Initialize form state if not already set
 if 'name' not in st.session_state:
     reset_form()
 
