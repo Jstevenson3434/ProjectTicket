@@ -9,29 +9,35 @@ import json
 import base64
 from io import StringIO
 
+# Define departments for dropdown
+departments = [
+    "Administration", "Finance", "Production", "Quality Control", "Logistics",
+    "Maintenance", "Human Resources", "Safety", "IT", "Research and Development",
+    "Sales", "Marketing", "Purchasing", "Customer Service"
+]
+
 # Define the GitHub repository information and the CSV file path.
 GITHUB_API_URL = "https://api.github.com"
 REPO_OWNER = "jstevenson3434"  # Replace with your GitHub username
 REPO_NAME = "ProjectTicket"  # Replace with your GitHub repository name
 CSV_FILE_PATH = "Data.csv"  # The path to your CSV file in the repo
 
-# Get the GitHub token from the environment variable or Streamlit secrets
+# Get the GitHub token from the secrets
 GITHUB_TOKEN = st.secrets["github_token"]
 
+# Check if the token was retrieved
 if not GITHUB_TOKEN:
-    st.error("GitHub token not found! Please set the GitHub token in Streamlit secrets.")
+    st.error("GitHub token not found! Please set the GITHUB_TOKEN environment variable.")
     st.stop()
 
 # Set page configuration with a wide layout.
 st.set_page_config(page_title="Analytics and AI Project Management System", page_icon="📊")
 st.title("📊 Analytics and AI Project Management System")
-st.write("""
+st.write(
+    """
     Please utilize this app to submit all data analytic and artificial intelligence project ideas for priority and completion date review.
-""")
-
-# Login credentials from Streamlit secrets
-ADMIN_USERNAME = st.secrets["admin"]["username"]
-ADMIN_PASSWORD = st.secrets["admin"]["password"]
+    """
+)
 
 # Function to save content to GitHub
 def save_to_github(content):
@@ -62,10 +68,12 @@ def load_projects_from_github():
     response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
 
     if response.status_code == 200:
+        # Decode the content from base64
         content = response.json()['content']
         decoded_content = pd.read_csv(StringIO(base64.b64decode(content).decode()))
         return decoded_content
     else:
+        # Create an empty DataFrame with specified columns.
         columns = ["ID", "Name", "Title", "Description", "Business Case", "Status", "Priority", 
                    "Date Submitted", "Reviewed Priority", "ROI (hours saved per day)", "ROI (financial savings)", "Department"]
         return pd.DataFrame(columns=columns)
@@ -73,73 +81,67 @@ def load_projects_from_github():
 # Initialize DataFrame
 st.session_state.df = load_projects_from_github()
 
-# Sidebar for login
-if "is_authenticated" not in st.session_state:
-    st.session_state.is_authenticated = False
+# Show a section to add a new project.
+st.header("Add a new project")
 
-st.sidebar.header("Admin Login")
-if not st.session_state.is_authenticated:
-    username = st.sidebar.text_input("Username")
-    password = st.sidebar.text_input("Password", type="password")
-    login_button = st.sidebar.button("Login")
+with st.form("add_project_form"):
+    name = st.text_input("Name")
+    title = st.text_input("Project Title")
+    description = st.text_area("Project Description")
+    bc = st.text_area("Business Case")
+    priority = st.selectbox("Priority", ["High", "Medium", "Low"])
+    
+    # New ROI fields
+    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1)
+    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0)
 
-    if login_button:
-        # Check credentials using Streamlit secrets
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            st.session_state.is_authenticated = True
-            st.success("You are logged in!")
-        else:
-            st.error("Invalid username or password.")
+    # Department dropdown
+    department = st.selectbox("Department", departments)
+    
+    submitted = st.form_submit_button("Submit")
 
-# If the user is authenticated, show the project table
-if st.session_state.is_authenticated:
-    edited_df = st.data_editor(
-        st.session_state.df,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Status": st.column_config.SelectboxColumn(
-                "Status",
-                help="Project status",
-                options=["Open", "Under Review", "In Progress", "Completed"],
-                required=True,
-            ),
-            "Priority": st.column_config.SelectboxColumn(
-                "Priority",
-                help="Project priority",
-                options=["High", "Medium", "Low"],
-                required=True,
-            ),
-            "Reviewed Priority": st.column_config.SelectboxColumn(
-                "Reviewed Priority",
-                help="Project reviewed priority",
-                options=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
-                required=True,
-            ),
-            "ROI (hours saved per day)": st.column_config.NumberColumn(
-                "ROI (hours saved per day)",
-                help="Estimated hours saved",
-                required=True,
-            ),
-            "ROI (financial savings)": st.column_config.NumberColumn(
-                "ROI (financial savings)",
-                help="Estimated money saved",
-                required=True,
-            ),
-            "Department": st.column_config.SelectboxColumn(
-                "Department",
-                help="Select the department for the project",
-                options=departments,
-                required=True,
-            ),
-        },
-        disabled=["ID", "Date Submitted"],
-    )
+if submitted:
+    # Check if any required fields are empty
+    if not name:
+        st.error("Please enter a name for the project.")
+    elif not title:
+        st.error("Please enter a project title.")
+    elif not description:
+        st.error("Please enter a project description.")
+    elif not bc:
+        st.error("Please enter a business case.")
+    else:
+        recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
+        today = datetime.datetime.now().strftime("%m-%d-%Y")
+        
+        # Create a DataFrame for the new project
+        df_new = pd.DataFrame(
+            [
+                {
+                    "ID": f"PROJECT-{recent_project_number}",
+                    "Name": name,
+                    "Title": title,
+                    "Description": description,
+                    "Business Case": bc,
+                    "Status": "Open",
+                    "Priority": priority,
+                    "Date Submitted": today,
+                    "Reviewed Priority": "Set After Review",
+                    "ROI (hours saved per day)": roi_hours_saved,
+                    "ROI (financial savings)": roi_money_saved,
+                    "Department": department
+                }
+            ]
+        )
 
-    # Save the edited DataFrame to GitHub
-    if not edited_df.equals(st.session_state.df):
-        st.session_state.df = edited_df
+        st.write("Project submitted! Here are the project details:")
+        st.dataframe(df_new, use_container_width=True, hide_index=True)
+
+        # Append the new project to the existing DataFrame and save it to GitHub.
+        st.session_state.df = pd.concat([st.session_state.df, df_new], ignore_index=True)
+
         content = st.session_state.df.to_csv(index=False)
         save_to_github(content)
 
-# Statistics and charts remain unchanged
+# Display the existing projects table for all users
+st.dataframe(st.session_state.df, use_container_width=True)
