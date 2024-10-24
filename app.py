@@ -53,20 +53,8 @@ def save_to_github(content):
     )
     if response.status_code in (201, 200):
         st.success("Project ticket saved to GitHub!")
-        
-        # Reset all the session state values after a successful save
-        st.session_state.name = ""
-        st.session_state.title = ""
-        st.session_state.description = ""
-        st.session_state.bc = ""
-        st.session_state.roi_hours_saved = 0
-        st.session_state.roi_money_saved = 0.0
-        st.session_state.department = departments[0]
-        st.session_state.priority = "Medium"
-        
     else:
         st.error("Failed to save project ticket to GitHub.")
-
 
 # Function to get SHA of the existing file on GitHub
 def get_sha_of_file():
@@ -91,17 +79,11 @@ def load_projects_from_github():
         return pd.DataFrame(columns=columns)
 
 # Initialize DataFrame
-st.session_state.df = load_projects_from_github()
-
-# Show a section to add a new project.
-st.header("Add a new project")
-
-# Use session state to reset form values after submission
-if 'submitted' not in st.session_state:
-    st.session_state.submitted = False
+if 'df' not in st.session_state:
+    st.session_state.df = load_projects_from_github()
 
 # Reset session state fields if form is submitted
-if st.session_state.submitted:
+def reset_form():
     st.session_state.name = ''
     st.session_state.title = ''
     st.session_state.description = ''
@@ -109,8 +91,14 @@ if st.session_state.submitted:
     st.session_state.roi_hours_saved = 0
     st.session_state.roi_money_saved = 0.0
     st.session_state.department = departments[0]
-    st.session_state.priority = 'High'
-    st.session_state.submitted = False
+    st.session_state.priority = 'Medium'
+
+# Initialize session state variables if they don't exist
+if 'name' not in st.session_state:
+    reset_form()
+
+# Show a section to add a new project.
+st.header("Add a new project")
 
 with st.form("add_project_form"):
     name = st.text_input("Name", key="name")
@@ -173,8 +161,8 @@ if submitted:
         content = st.session_state.df.to_csv(index=False)
         save_to_github(content)
 
-        # Mark form as submitted to reset fields
-        st.session_state.submitted = True
+        # Reset form fields after submission
+        reset_form()
 
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
