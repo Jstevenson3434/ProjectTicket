@@ -106,9 +106,9 @@ def submit():
     # Save to GitHub
     content = st.session_state.df.to_csv(index=False)
     if save_to_github(content):
-        st.success("Project ticket saved to GitHub!")
+        st.success("Project ticket saved!")
     else:
-        st.error("Failed to save project ticket to GitHub.")
+        st.error("Failed to save project if this error p[ersists please contant Justin Stevenson ext. 5437.")
     
     # Add a delay before clearing fields
     time.sleep(0.25)  # Wait for 1 second
@@ -123,9 +123,16 @@ def submit():
     st.session_state.widget_department = departments[0]
     st.session_state.widget_priority = "Medium"
 
-# Show a section to add a new project.
-st.header("Add a new project")
-
+# Set page configuration with a wide layout.
+st.set_page_config(page_title="Business Intelligence Project Submission", page_icon="📊")
+st.title("📊 Analytics and Artificial Intelligence Project Submission Portal")
+st.write(
+    """
+    This portal serves as a central hub for submitting Business Intelligence project ideas.
+    Please fill out the form below to submit your project for review. 
+    Your submission will help prioritize and set timelines for these projects.
+    """
+)
 # Display the form
 with st.form("add_project_form"):
     st.text_input("Name", key="widget_name")
