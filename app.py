@@ -111,7 +111,7 @@ def submit():
         st.error("Failed to save project ticket to GitHub.")
     
     # Add a delay before clearing fields
-    time.sleep(1)  # Wait for 1 second
+    time.sleep(0.25)  # Wait for 1 second
 
     # Reset the input fields
     st.session_state.widget_name = ""
