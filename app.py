@@ -82,42 +82,38 @@ if 'df' not in st.session_state:
 
 # Function to reset form fields
 def reset_form():
-    st.session_state.submitted = False
-    st.session_state.name = ''
-    st.session_state.title = ''
-    st.session_state.description = ''
-    st.session_state.bc = ''
-    st.session_state.roi_hours_saved = 0
-    st.session_state.roi_money_saved = 0.0
-    st.session_state.department = departments[0]
-    st.session_state.priority = 'Medium'
+    st.session_state['name'] = ''
+    st.session_state['title'] = ''
+    st.session_state['description'] = ''
+    st.session_state['bc'] = ''
+    st.session_state['roi_hours_saved'] = 0
+    st.session_state['roi_money_saved'] = 0.0
+    st.session_state['department'] = departments[0]
+    st.session_state['priority'] = 'Medium'
 
-# Use session state to keep track of the form submission
-if 'submitted' not in st.session_state:
+# Initialize form state
+if 'name' not in st.session_state:
     reset_form()
 
 # Show a section to add a new project.
 st.header("Add a new project")
 
-# Reset form fields before showing the form
-if st.session_state.submitted:
-    reset_form()
-
+# Display the form
 with st.form("add_project_form"):
-    name = st.text_input("Name", key="name")
-    title = st.text_input("Project Title", key="title")
-    description = st.text_area("Project Description", key="description")
-    bc = st.text_area("Business Case", key="bc")
+    name = st.text_input("Name", value=st.session_state.name, key="name")
+    title = st.text_input("Project Title", value=st.session_state.title, key="title")
+    description = st.text_area("Project Description", value=st.session_state.description, key="description")
+    bc = st.text_area("Business Case", value=st.session_state.bc, key="bc")
     
     # New ROI fields
-    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1, key="roi_hours_saved")
-    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0, key="roi_money_saved")
+    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1, value=st.session_state.roi_hours_saved, key="roi_hours_saved")
+    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0, value=st.session_state.roi_money_saved, key="roi_money_saved")
 
     # Department dropdown
-    department = st.selectbox("Department", departments, key="department")
+    department = st.selectbox("Department", departments, index=departments.index(st.session_state.department), key="department")
     
-    # Move Priority to the bottom
-    priority = st.selectbox("Priority", ["High", "Medium", "Low"], key="priority")
+    # Priority selection
+    priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=["High", "Medium", "Low"].index(st.session_state.priority), key="priority")
     
     submitted = st.form_submit_button("Submit")
 
@@ -164,8 +160,8 @@ if submitted:
         content = st.session_state.df.to_csv(index=False)
         save_to_github(content)
 
-        # Set submitted flag to true to reset the form in the next iteration
-        st.session_state.submitted = True
+        # Reset the form fields after submission
+        reset_form()
 
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
