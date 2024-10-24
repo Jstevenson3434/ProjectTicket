@@ -34,10 +34,7 @@ def save_to_github(content):
             "sha": get_sha_of_file()
         })
     )
-    if response.status_code in (201, 200):
-        st.success("Project ticket saved to GitHub!")
-    else:
-        st.error("Failed to save project ticket to GitHub.")
+    return response.status_code in (200, 201)
 
 # Function to get SHA of the existing file on GitHub
 def get_sha_of_file():
@@ -49,14 +46,11 @@ def get_sha_of_file():
 def load_projects_from_github():
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{CSV_FILE_PATH}"
     response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
-
     if response.status_code == 200:
-        # Decode the content from base64
         content = response.json()['content']
         decoded_content = pd.read_csv(StringIO(base64.b64decode(content).decode()))
         return decoded_content
     else:
-        # Create an empty DataFrame with specified columns.
         columns = ["ID", "Name", "Title", "Description", "Business Case", "Status", "Priority", 
                    "Date Submitted", "Reviewed Priority", "ROI (hours saved per day)", "ROI (financial savings)", "Department"]
         return pd.DataFrame(columns=columns)
@@ -65,44 +59,43 @@ def load_projects_from_github():
 if 'df' not in st.session_state:
     st.session_state.df = load_projects_from_github()
 
-# Reset form fields after submission (before widgets are created)
-def reset_form():
-    st.session_state['name'] = ''
-    st.session_state['title'] = ''
-    st.session_state['description'] = ''
-    st.session_state['bc'] = ''
-    st.session_state['roi_hours_saved'] = 0
-    st.session_state['roi_money_saved'] = 0.0
-    st.session_state['department'] = departments[0]
-    st.session_state['priority'] = 'Medium'
+# Initialize session state for form fields if not set
+if 'name' not in st.session_state:
+    st.session_state.name = ''
+if 'title' not in st.session_state:
+    st.session_state.title = ''
+if 'description' not in st.session_state:
+    st.session_state.description = ''
+if 'bc' not in st.session_state:
+    st.session_state.bc = ''
+if 'roi_hours_saved' not in st.session_state:
+    st.session_state.roi_hours_saved = 0
+if 'roi_money_saved' not in st.session_state:
+    st.session_state.roi_money_saved = 0.0
+if 'department' not in st.session_state:
+    st.session_state.department = departments[0]
+if 'priority' not in st.session_state:
+    st.session_state.priority = 'Medium'
 
 # Show a section to add a new project.
 st.header("Add a new project")
 
-# If the form is submitted, reset the fields first.
-if 'form_submitted' not in st.session_state:
-    st.session_state.form_submitted = False
-
-if st.session_state.form_submitted:
-    reset_form()
-    st.session_state.form_submitted = False
-
 # Display the form
 with st.form("add_project_form"):
-    name = st.text_input("Name", value=st.session_state.get('name', ''), key="name")
-    title = st.text_input("Project Title", value=st.session_state.get('title', ''), key="title")
-    description = st.text_area("Project Description", value=st.session_state.get('description', ''), key="description")
-    bc = st.text_area("Business Case", value=st.session_state.get('bc', ''), key="bc")
+    name = st.text_input("Name", value=st.session_state.name, key="name")
+    title = st.text_input("Project Title", value=st.session_state.title, key="title")
+    description = st.text_area("Project Description", value=st.session_state.description, key="description")
+    bc = st.text_area("Business Case", value=st.session_state.bc, key="bc")
     
     # New ROI fields
-    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1, value=st.session_state.get('roi_hours_saved', 0), key="roi_hours_saved")
-    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0, value=st.session_state.get('roi_money_saved', 0.0), key="roi_money_saved")
+    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1, value=st.session_state.roi_hours_saved, key="roi_hours_saved")
+    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0, value=st.session_state.roi_money_saved, key="roi_money_saved")
 
     # Department dropdown
-    department = st.selectbox("Department", departments, index=departments.index(st.session_state.get('department', departments[0])), key="department")
+    department = st.selectbox("Department", departments, index=departments.index(st.session_state.department), key="department")
     
     # Priority selection
-    priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=["High", "Medium", "Low"].index(st.session_state.get('priority', 'Medium')), key="priority")
+    priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=["High", "Medium", "Low"].index(st.session_state.priority), key="priority")
     
     submitted = st.form_submit_button("Submit")
 
@@ -147,13 +140,21 @@ if submitted:
         st.session_state.df = pd.concat([st.session_state.df, df_new], ignore_index=True)
 
         content = st.session_state.df.to_csv(index=False)
-        save_to_github(content)
-
-        # Reset the form fields after submission
-        st.session_state.form_submitted = True
-
-        # Refresh the app to reflect changes
-        st.experimental_rerun()
+        if save_to_github(content):
+            # Reset the form fields after submission
+            st.session_state.name = ''
+            st.session_state.title = ''
+            st.session_state.description = ''
+            st.session_state.bc = ''
+            st.session_state.roi_hours_saved = 0
+            st.session_state.roi_money_saved = 0.0
+            st.session_state.department = departments[0]
+            st.session_state.priority = 'Medium'
+            
+            # Refresh the app to reflect changes
+            st.experimental_rerun()
+        else:
+            st.error("Failed to save project ticket to GitHub.")
 
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
