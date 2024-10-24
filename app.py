@@ -89,7 +89,6 @@ with st.form("add_project_form"):
     title = st.text_input("Project Title")
     description = st.text_area("Project Description")
     bc = st.text_area("Business Case")
-    priority = st.selectbox("Priority", ["High", "Medium", "Low"])
     
     # New ROI fields
     roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1)
@@ -97,6 +96,9 @@ with st.form("add_project_form"):
 
     # Department dropdown
     department = st.selectbox("Department", departments)
+    
+    # Move Priority to the bottom
+    priority = st.selectbox("Priority", ["High", "Medium", "Low"])
     
     submitted = st.form_submit_button("Submit")
 
