@@ -23,13 +23,12 @@ if not GITHUB_TOKEN:
     st.error("GitHub token not found! Please set the GITHUB_TOKEN environment variable.")
     st.stop()
 
-
 # Set page configuration with a wide layout.
 st.set_page_config(page_title="Analytics and AI Project Management System", page_icon="📊")
 st.title("📊 Analytics and AI Project Management System")
 st.write(
     """
-    Please utilize this app to submit all data analytic and artifical intelegence project ideas for priority and completion date review.
+    Please utilize this app to submit all data analytic and artificial intelligence project ideas for priority and completion date review.
     """
 )
 
@@ -68,7 +67,8 @@ def load_projects_from_github():
         return decoded_content
     else:
         # Create an empty DataFrame with specified columns.
-        columns = ["ID", "Title", "Description", "Status", "Priority", "Date Submitted", "Reviewed Priority"]
+        columns = ["ID", "Name", "Title", "Description", "Business Case", "Status", "Priority", 
+                   "Date Submitted", "Reviewed Priority", "ROI (hours saved)", "ROI (money saved)"]
         return pd.DataFrame(columns=columns)
 
 # Initialize DataFrame
@@ -83,6 +83,11 @@ with st.form("add_project_form"):
     description = st.text_area("Project Description")
     bc = st.text_area("Business Case")
     priority = st.selectbox("Priority", ["High", "Medium", "Low"])
+    
+    # New ROI fields
+    roi_hours_saved = st.number_input("ROI (hours saved)", min_value=0, step=1)
+    roi_money_saved = st.number_input("ROI (money saved)", min_value=0.0, step=100.0)
+    
     submitted = st.form_submit_button("Submit")
 
 if submitted:
@@ -112,6 +117,8 @@ if submitted:
                     "Priority": priority,
                     "Date Submitted": today,
                     "Reviewed Priority": "Set After Review",
+                    "ROI (hours saved)": roi_hours_saved,
+                    "ROI (money saved)": roi_money_saved
                 }
             ]
         )
@@ -170,6 +177,16 @@ if st.session_state.is_authenticated:
                 "Reviewed Priority",
                 help="Project reviewed priority",
                 options=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+                required=True,
+            ),
+            "ROI (hours saved)": st.column_config.NumberColumn(
+                "ROI (hours saved)",
+                help="Estimated hours saved",
+                required=True,
+            ),
+            "ROI (money saved)": st.column_config.NumberColumn(
+                "ROI (money saved)",
+                help="Estimated money saved",
                 required=True,
             ),
         },
