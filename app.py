@@ -31,16 +31,12 @@ if not GITHUB_TOKEN:
     st.error("GitHub token not found! Please set the GITHUB_TOKEN environment variable.")
     st.stop()
 
-# Admin login credentials stored in secrets
-ADMIN_USERNAME = st.secrets["admin_username"]
-ADMIN_PASSWORD = st.secrets["admin_password"]
-
 # Set page configuration with a wide layout.
 st.set_page_config(page_title="Analytics and AI Project Management System", page_icon="📊")
-st.title("📊 Analytics and AI Project Submission Portal")
+st.title("📊 Analytics and AI Project Management System")
 st.write(
     """
-    This portal is designed for users to submit their Business Intelligence project ideas in one centralized location for review, priority setting, and timeline planning.
+    Please utilize this app to submit all data analytic and artificial intelligence project ideas for priority and completion date review.
     """
 )
 
@@ -56,12 +52,7 @@ def save_to_github(content):
             "sha": get_sha_of_file()
         })
     )
-    if response.status_code in (201, 200):
-        st.success("Project ticket saved to GitHub!")
-        time.sleep(1)  # Delay to ensure the message is displayed
-        reset_form()
-    else:
-        st.error("Failed to save project ticket to GitHub.")
+    return response
 
 # Function to get SHA of the existing file on GitHub
 def get_sha_of_file():
@@ -85,8 +76,37 @@ def load_projects_from_github():
                    "Date Submitted", "Reviewed Priority", "ROI (hours saved per day)", "ROI (financial savings)", "Department"]
         return pd.DataFrame(columns=columns)
 
-# Function to reset form fields
-def reset_form():
+# Initialize DataFrame
+st.session_state.df = load_projects_from_github()
+
+# Admin login
+admin_username = st.secrets["admin_username"]  # Store admin username as a Streamlit secret
+admin_password = st.secrets["admin_password"]  # Store admin password as a Streamlit secret
+
+# Sidebar for Admin Login
+st.sidebar.header("Admin Login")
+admin_input_username = st.sidebar.text_input("Username", type="password")
+admin_input_password = st.sidebar.text_input("Password", type="password", value="", placeholder="Enter password", label_visibility="collapsed")
+
+if st.sidebar.button("Login"):
+    if admin_input_username == admin_username and admin_input_password == admin_password:
+        st.sidebar.success("Logged in as Admin")
+        is_admin = True  # Set admin flag to True
+    else:
+        st.sidebar.error("Invalid username or password")
+        is_admin = False
+else:
+    is_admin = False
+
+# Show a section to add a new project.
+st.header("Analytics and Artificial Intelligence Project Submission Portal")
+
+# Use session state to reset form values after submission
+if 'submitted' not in st.session_state:
+    st.session_state.submitted = False
+
+# Reset session state fields if form is submitted
+if st.session_state.submitted:
     st.session_state.name = ''
     st.session_state.title = ''
     st.session_state.description = ''
@@ -95,45 +115,23 @@ def reset_form():
     st.session_state.roi_money_saved = 0.0
     st.session_state.department = departments[0]
     st.session_state.priority = 'Medium'
-
-# Initialize DataFrame
-st.session_state.df = load_projects_from_github()
-
-# Show admin login
-st.header("Admin Login")
-admin_username = st.text_input("Username", type="text")
-admin_password = st.text_input("Password", type="password")
-
-if st.button("Login"):
-    if admin_username == ADMIN_USERNAME and admin_password == ADMIN_PASSWORD:
-        st.success("Logged in as admin.")
-        admin_mode = True  # Set a flag for admin mode
-    else:
-        st.error("Invalid credentials, please try again.")
-
-if 'admin_mode' in locals() and admin_mode:
-    # Admin functionality (like editing the DataFrame) can go here
-    st.write("Admin functionalities can be implemented here.")
-    # For example, allow editing the DataFrame directly or other admin tasks.
-
-# Show a section to add a new project.
-st.header("Submit a New Project")
+    st.session_state.submitted = False
 
 with st.form("add_project_form"):
-    name = st.text_input("Name", key="name", help="Enter your name here.")
-    title = st.text_input("Project Title", key="title", help="Enter the title of your project.")
-    description = st.text_area("Project Description", key="description", help="Provide a brief description of your project.")
-    bc = st.text_area("Business Case", key="bc", help="Explain the business case for your project.")
+    name = st.text_input("Name", key="name", help="Enter the name of the project")
+    title = st.text_input("Project Title", key="title", help="Enter the title of the project")
+    description = st.text_area("Project Description", key="description", help="Provide a brief description of the project")
+    bc = st.text_area("Business Case", key="bc", help="Explain the business case for this project")
     
     # New ROI fields
-    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1, key="roi_hours_saved", help="Estimated hours saved daily by this project.")
-    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0, key="roi_money_saved", help="Estimated financial savings per year.")
+    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1, key="roi_hours_saved", help="Estimate the hours saved per day")
+    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0, key="roi_money_saved", help="Estimate the financial savings per day")
 
     # Department dropdown
-    department = st.selectbox("Department", departments, key="department", help="Select the department this project relates to.")
+    department = st.selectbox("Department", departments, key="department", help="Select the department related to the project")
     
     # Move Priority to the bottom
-    priority = st.selectbox("Priority", ["High", "Medium", "Low"], key="priority", help="Select the priority level for this project.")
+    priority = st.selectbox("Priority", ["High", "Medium", "Low"], key="priority", help="Select the priority of the project")
     
     submitted = st.form_submit_button("Submit")
 
@@ -178,7 +176,29 @@ if submitted:
         st.session_state.df = pd.concat([st.session_state.df, df_new], ignore_index=True)
 
         content = st.session_state.df.to_csv(index=False)
-        save_to_github(content)
+        response = save_to_github(content)
+
+        if response.status_code in (201, 200):
+            st.success("Project ticket saved to GitHub!")
+            # Delay clearing the input fields
+            time.sleep(1)
+            st.session_state.submitted = True
+        else:
+            st.error("Failed to save project ticket to GitHub.")
 
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
+
+# Admin functionality to edit the DataFrame
+if is_admin:
+    st.header("Admin Section: Edit Projects")
+    edited_df = st.data_editor(st.session_state.df, use_container_width=True)
+
+    if st.button("Save Changes"):
+        content = edited_df.to_csv(index=False)
+        response = save_to_github(content)
+
+        if response.status_code in (201, 200):
+            st.success("Changes saved to GitHub!")
+        else:
+            st.error("Failed to save changes to GitHub.")
