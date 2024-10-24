@@ -1,7 +1,5 @@
 import datetime
 import os
-import altair as alt
-import numpy as np
 import pandas as pd
 import streamlit as st
 import requests
@@ -78,12 +76,13 @@ def load_projects_from_github():
                    "Date Submitted", "Reviewed Priority", "ROI (hours saved per day)", "ROI (financial savings)", "Department"]
         return pd.DataFrame(columns=columns)
 
-# Initialize DataFrame
+# Initialize DataFrame in session state if not already loaded
 if 'df' not in st.session_state:
     st.session_state.df = load_projects_from_github()
 
-# Reset session state fields if form is submitted
+# Function to reset form fields
 def reset_form():
+    st.session_state.submitted = False
     st.session_state.name = ''
     st.session_state.title = ''
     st.session_state.description = ''
@@ -93,12 +92,16 @@ def reset_form():
     st.session_state.department = departments[0]
     st.session_state.priority = 'Medium'
 
-# Initialize session state variables if they don't exist
-if 'name' not in st.session_state:
+# Use session state to keep track of the form submission
+if 'submitted' not in st.session_state:
     reset_form()
 
 # Show a section to add a new project.
 st.header("Add a new project")
+
+# Reset form fields before showing the form
+if st.session_state.submitted:
+    reset_form()
 
 with st.form("add_project_form"):
     name = st.text_input("Name", key="name")
@@ -161,8 +164,8 @@ if submitted:
         content = st.session_state.df.to_csv(index=False)
         save_to_github(content)
 
-        # Reset form fields after submission
-        reset_form()
+        # Set submitted flag to true to reset the form in the next iteration
+        st.session_state.submitted = True
 
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
