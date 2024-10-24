@@ -152,5 +152,8 @@ if submitted:
         # Reset the form fields after submission
         st.session_state.form_submitted = True
 
+        # Refresh the app to reflect changes
+        st.experimental_rerun()
+
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
