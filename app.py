@@ -98,7 +98,6 @@ with st.form("add_project_form"):
     priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=["High", "Medium", "Low"].index(st.session_state.priority), key="priority")
     
     submitted = st.form_submit_button("Submit")
-    clear = st.button("Clear Form")
 
 if submitted:
     # Check if any required fields are empty
@@ -147,7 +146,7 @@ if submitted:
             st.error("Failed to save project ticket to GitHub.")
 
 # Clear form logic
-if clear:
+if st.button("Clear Form"):
     # Reset the session state for the form fields
     st.session_state.name = ''
     st.session_state.title = ''
