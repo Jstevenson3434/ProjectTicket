@@ -77,6 +77,17 @@ if 'department' not in st.session_state:
 if 'priority' not in st.session_state:
     st.session_state.priority = 'Medium'
 
+# Function to clear form fields
+def clear_form():
+    st.session_state.name = ''
+    st.session_state.title = ''
+    st.session_state.description = ''
+    st.session_state.bc = ''
+    st.session_state.roi_hours_saved = 0
+    st.session_state.roi_money_saved = 0.0
+    st.session_state.department = departments[0]
+    st.session_state.priority = 'Medium'
+
 # Show a section to add a new project.
 st.header("Add a new project")
 
@@ -145,18 +156,9 @@ if submitted:
         else:
             st.error("Failed to save project ticket to GitHub.")
 
-# Clear form logic
+# Clear form button
 if st.button("Clear Form"):
-    # Reset the session state for the form fields
-    st.session_state.name = ''
-    st.session_state.title = ''
-    st.session_state.description = ''
-    st.session_state.bc = ''
-    st.session_state.roi_hours_saved = 0
-    st.session_state.roi_money_saved = 0.0
-    st.session_state.department = departments[0]
-    st.session_state.priority = 'Medium'
-    
+    clear_form()
     # Refresh the app to reflect changes
     st.experimental_rerun()
 
