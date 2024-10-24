@@ -5,6 +5,7 @@ import requests
 import json
 import base64
 from io import StringIO
+import time  # Import time for sleep function
 
 # Define departments for dropdown
 departments = [
@@ -76,6 +77,42 @@ def submit():
     st.session_state.department = st.session_state.widget_department
     st.session_state.priority = st.session_state.widget_priority
 
+    # Create a new project DataFrame
+    recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
+    today = datetime.datetime.now().strftime("%m-%d-%Y")
+    
+    df_new = pd.DataFrame(
+        [
+            {
+                "ID": f"PROJECT-{recent_project_number}",
+                "Name": st.session_state.widget_name,
+                "Title": st.session_state.widget_title,
+                "Description": st.session_state.widget_description,
+                "Business Case": st.session_state.widget_bc,
+                "Status": "Open",
+                "Priority": st.session_state.widget_priority,
+                "Date Submitted": today,
+                "Reviewed Priority": "Set After Review",
+                "ROI (hours saved per day)": st.session_state.widget_roi_hours_saved,
+                "ROI (financial savings)": st.session_state.widget_roi_money_saved,
+                "Department": st.session_state.widget_department
+            }
+        ]
+    )
+
+    # Append the new project to the existing DataFrame
+    st.session_state.df = pd.concat([st.session_state.df, df_new], ignore_index=True)
+
+    # Save to GitHub
+    content = st.session_state.df.to_csv(index=False)
+    if save_to_github(content):
+        st.success("Project ticket saved to GitHub!")
+    else:
+        st.error("Failed to save project ticket to GitHub.")
+    
+    # Add a delay before clearing fields
+    time.sleep(1)  # Wait for 1 second
+
     # Reset the input fields
     st.session_state.widget_name = ""
     st.session_state.widget_title = ""
@@ -107,52 +144,6 @@ with st.form("add_project_form"):
     st.selectbox("Priority", ["High", "Medium", "Low"], key="widget_priority")
     
     submitted = st.form_submit_button("Submit", on_click=submit)
-
-if submitted:
-    # Check if any required fields are empty
-    if not st.session_state.widget_name:
-        st.error("Please enter a name for the project.")
-    elif not st.session_state.widget_title:
-        st.error("Please enter a project title.")
-    elif not st.session_state.widget_description:
-        st.error("Please enter a project description.")
-    elif not st.session_state.widget_bc:
-        st.error("Please enter a business case.")
-    else:
-        recent_project_number = len(st.session_state.df) + 1100  # Start IDs from PROJECT-1100
-        today = datetime.datetime.now().strftime("%m-%d-%Y")
-        
-        # Create a DataFrame for the new project
-        df_new = pd.DataFrame(
-            [
-                {
-                    "ID": f"PROJECT-{recent_project_number}",
-                    "Name": st.session_state.widget_name,
-                    "Title": st.session_state.widget_title,
-                    "Description": st.session_state.widget_description,
-                    "Business Case": st.session_state.widget_bc,
-                    "Status": "Open",
-                    "Priority": st.session_state.widget_priority,
-                    "Date Submitted": today,
-                    "Reviewed Priority": "Set After Review",
-                    "ROI (hours saved per day)": st.session_state.widget_roi_hours_saved,
-                    "ROI (financial savings)": st.session_state.widget_roi_money_saved,
-                    "Department": st.session_state.widget_department
-                }
-            ]
-        )
-
-        st.write("Project submitted! Here are the project details:")
-        st.dataframe(df_new, use_container_width=True, hide_index=True)
-
-        # Append the new project to the existing DataFrame and save it to GitHub.
-        st.session_state.df = pd.concat([st.session_state.df, df_new], ignore_index=True)
-
-        content = st.session_state.df.to_csv(index=False)
-        if save_to_github(content):
-            st.success("Project ticket saved to GitHub!")
-        else:
-            st.error("Failed to save project ticket to GitHub.")
 
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
