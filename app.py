@@ -98,6 +98,7 @@ with st.form("add_project_form"):
     priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=["High", "Medium", "Low"].index(st.session_state.priority), key="priority")
     
     submitted = st.form_submit_button("Submit")
+    clear = st.button("Clear Form")
 
 if submitted:
     # Check if any required fields are empty
@@ -141,20 +142,24 @@ if submitted:
 
         content = st.session_state.df.to_csv(index=False)
         if save_to_github(content):
-            # Reset the form fields after submission
-            st.session_state.name = ''
-            st.session_state.title = ''
-            st.session_state.description = ''
-            st.session_state.bc = ''
-            st.session_state.roi_hours_saved = 0
-            st.session_state.roi_money_saved = 0.0
-            st.session_state.department = departments[0]
-            st.session_state.priority = 'Medium'
-            
-            # Refresh the app to reflect changes
-            st.experimental_rerun()
+            st.success("Project ticket saved to GitHub!")
         else:
             st.error("Failed to save project ticket to GitHub.")
+
+# Clear form logic
+if clear:
+    # Reset the session state for the form fields
+    st.session_state.name = ''
+    st.session_state.title = ''
+    st.session_state.description = ''
+    st.session_state.bc = ''
+    st.session_state.roi_hours_saved = 0
+    st.session_state.roi_money_saved = 0.0
+    st.session_state.department = departments[0]
+    st.session_state.priority = 'Medium'
+    
+    # Refresh the app to reflect changes
+    st.experimental_rerun()
 
 # Display the existing projects table for all users
 st.dataframe(st.session_state.df, use_container_width=True)
