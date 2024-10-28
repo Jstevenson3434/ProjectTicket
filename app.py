@@ -36,7 +36,10 @@ st.set_page_config(page_title="Analytics and AI Project Management System", page
 st.title("📊 Analytics and AI Project Management System")
 st.write(
     """
-    Please utilize this app to submit all data analytic and artificial intelligence project ideas for priority and completion date review.
+    Please utilize this app to submit all data analytic and artificial intelligence project ideas for priority
+    and completion date review.
+    
+    Please leave any potentialy confidential information out of this portal. 
     """
 )
 
