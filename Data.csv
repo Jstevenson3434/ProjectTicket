@@ -7,3 +7,4 @@ PROJECT-1104,Test Project Portal,just test the portal like a ticket,Open,High,10
 PROJECT-1105,Sales Data,"I make a sales table with MTD Sales on it for the weekly Sales meeting.  Can this be automated?
 
 I also would like to have some Inventory data automated that i use for the meeting",Open,Medium,10-31-2024,Adam Hyer,Set After Review,,"It takes me 20-30 minutes to make these reports every week.   Also, I do not have a back up on this so no one does this when I am off.",1.0,100.0,Sales
+PROJECT-1106,Production Run Summary reports,The current production run summary report is very hard to understand well.  It doesn't compare the  inputs vs. the outputs well to fully understand how the run yielded.    I can export this to Excel adn re-sort it - but that takes 5-10 minutes per work order review,Open,Medium,10-31-2024,Adam Hyer,Set After Review,,This would help us analyze production runs a lot quick and catch issues,1.0,300.0,Quality Control
