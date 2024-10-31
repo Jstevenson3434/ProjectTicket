@@ -127,8 +127,8 @@ with st.form("add_project_form"):
     bc = st.text_area("Business Case", key="bc", help="Explain how this projects benifits the company (will help determine priority)")
     
     # New ROI fields
-    roi_hours_saved = st.number_input("ROI (hours saved per day)", min_value=0, step=1, key="roi_hours_saved", help="If applicable estimate the hours this project will save per day")
-    roi_money_saved = st.number_input("ROI (financial savings)", min_value=0.0, step=100.0, key="roi_money_saved", help="If applicable estimate the financial savings of this project per day")
+    roi_hours_saved = st.number_input("ROI (hours saved annualy)", min_value=0, step=1, key="roi_hours_saved", help="If applicable estimate the hours this project will save per day")
+    roi_money_saved = st.number_input("ROI (financial savings annualy)", min_value=0.0, step=100.0, key="roi_money_saved", help="If applicable estimate the financial savings of this project per day")
 
     # Department dropdown
     department = st.selectbox("Department", departments, key="department", help="Select the department related to the project")
