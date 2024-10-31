@@ -76,7 +76,7 @@ def load_projects_from_github():
     else:
         # Create an empty DataFrame with specified columns.
         columns = ["ID", "Name", "Title", "Description", "Business Case", "Status", "Priority", 
-                   "Date Submitted", "Reviewed Priority", "ROI (hours saved annual)", "ROI (financial savings annual)", "Department"]
+                   "Date Submitted", "Reviewed Priority", "ROI (hours saved annualy)", "ROI (financial savings annualy)", "Department"]
         return pd.DataFrame(columns=columns)
 
 # Initialize DataFrame
