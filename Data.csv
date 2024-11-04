@@ -5,10 +5,8 @@ PROJECT-1102,Daily Sales Report Subscription Email,Recap of daily sales sent out
 PROJECT-1103,Project Ticketing System,Create a ticket system to keep track of projects and review priority,Closed,Medium,10-24-2024,Jenny Heise,Set After Review,,project management,1.0,0.0,Administration,,
 PROJECT-1104,Test Project Portal,just test the portal like a ticket,Open,High,10-30-2024,Tony Kubik,Set After Review,,Report,0.0,0.0,IT,,
 PROJECT-1105,Sales Data,"I make a sales table with MTD Sales on it for the weekly Sales meeting.  Can this be automated?
-
 I also would like to have some Inventory data automated that i use for the meeting",Open,Medium,10-31-2024,Adam Hyer,Set After Review,,"It takes me 20-30 minutes to make these reports every week.   Also, I do not have a back up on this so no one does this when I am off.",1.0,100.0,Sales,,
 PROJECT-1106,Production Run Summary reports,The current production run summary report is very hard to understand well.  It doesn't compare the  inputs vs. the outputs well to fully understand how the run yielded.    I can export this to Excel adn re-sort it - but that takes 5-10 minutes per work order review,Open,Medium,10-31-2024,Adam Hyer,Set After Review,,This would help us analyze production runs a lot quick and catch issues,1.0,300.0,Quality Control,,
 PROJECT-1107,Fix Emailed Shipment reports,Sales people get an email when a load ships.  But it only gives the sales order number and shipment number.  Can this have all the information on the email?  I'd ask the sales team what data they want before you make this change.  But possibly the picking list or packing slip would be best to attach?,Open,Medium,11-01-2024,Adam Hyer,Set After Review,,"We have to copy the shipment number and then paste it into LT to find out what shipment this actually was.    And it is really hard to keep up with if you are traveling.
 ",,,Sales,100.0,10000.0
-PROJECT-1108,test,testt,Open,High,11-04-2024,test,Set After Review,,test,,,Administration,111.0,100.115
-PROJECT-1109,test,test,Open,High,11-04-2024,test,Set After Review,,test,111.0,100.0,Administration,,
+
