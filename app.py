@@ -165,8 +165,8 @@ if submitted:
                     "Priority": priority,
                     "Date Submitted": today,
                     "Reviewed Priority": "Set After Review",
-                    "ROI (hours saved per day)": roi_hours_saved,
-                    "ROI (financial savings)": roi_money_saved,
+                    "ROI (hours saved annualy)": roi_hours_saved,
+                    "ROI (financial savings annualy)": roi_money_saved,
                     "Department": department
                 }
             ]
