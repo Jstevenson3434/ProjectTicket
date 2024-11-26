@@ -190,7 +190,9 @@ if submitted:
             st.error("Failed to save project ticket to GitHub.")
 
 # Display the existing projects table for all users
+st.session_state.df = st.session_state.df.sort_values(by='Timestamp', ascending=False)
 st.dataframe(st.session_state.df, use_container_width=True)
+
 
 # Admin functionality to edit the DataFrame
 if is_admin:
